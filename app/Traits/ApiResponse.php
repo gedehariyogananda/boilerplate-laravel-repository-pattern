@@ -13,8 +13,6 @@ trait ApiResponse
         ], $code);
     }
 
-
-
     protected function apiError($code, $message = null)
     {
         return response()->json([

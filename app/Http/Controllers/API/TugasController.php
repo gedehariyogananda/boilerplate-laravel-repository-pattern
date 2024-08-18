@@ -19,13 +19,13 @@ class TugasController extends Controller
         $this->tugasService = $tugasService;
     }
 
-    public function index()
+    public function getTugas()
     {
         $data = $this->tugasService->getTugas();
         return $this->apiSuccess($data, 200, 'Data retrieved successfully');
     }
 
-    public function show($id)
+    public function getSpesificTugas($id)
     {
         try {
             $tugas = $this->tugasService->getSpesificTugas($id);
@@ -39,7 +39,7 @@ class TugasController extends Controller
         }
     }
 
-    public function store(TugasRequest $request)
+    public function createTugas(TugasRequest $request)
     {
         try {
             $data = $request->validated();
@@ -51,7 +51,7 @@ class TugasController extends Controller
         }
     }
 
-    public function update(TugasRequest $request, $id)
+    public function updateTugas(TugasRequest $request, $id)
     {
         try {
             $data = $request->validated();
@@ -61,15 +61,13 @@ class TugasController extends Controller
                 return $this->apiError(404, 'Data not found');
             }
 
-            $init = $this->tugasService->getSpesificTugas($id);
-
-            return $this->apiSuccess($init, 200, 'Data updated successfully');
+            return $this->apiSuccess($result, 200, 'Data updated successfully');
         } catch (Exception $e) {
             return $this->apiError(400, $e->getMessage());
         }
     }
 
-    public function destroy($id)
+    public function deleteTugas($id)
     {
         try {
             $result = $this->tugasService->deleteTugas($id);

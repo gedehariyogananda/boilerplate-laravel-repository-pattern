@@ -20,7 +20,7 @@ class PenggunaController extends Controller
         $this->penggunaService = $penggunaService;
     }
 
-    public function index()
+    public function getPengguna()
     {
         try {
             $pengguna = $this->penggunaService->getPengguna();
@@ -30,7 +30,7 @@ class PenggunaController extends Controller
         }
     }
 
-    public function show($id)
+    public function getSpesificPengguna($id)
     {
         try {
             $pengguna = $this->penggunaService->getSpesificPengguna($id);
@@ -40,12 +40,10 @@ class PenggunaController extends Controller
         }
     }
 
-    public function store(PenggunaRequest $request)
+    public function createPengguna(PenggunaRequest $request)
     {
         try {
             $data = $request->validated();
-            // hashing request password
-            $data['password'] = bcrypt($data['password']);
             $pengguna = $this->penggunaService->createPengguna($data);
             return $this->apiSuccess($pengguna, 200, 'successfully created');
         } catch (Exception $e) {
@@ -53,27 +51,22 @@ class PenggunaController extends Controller
         }
     }
 
-    public function update(PenggunaRequest $request)
+    public function updatePengguna(PenggunaRequest $request)
     {
         try {
             $data = $request->validated();
-            // hashing request password
-            $data['password'] = bcrypt($data['password']);
             $pengguna = $this->penggunaService->updatePengguna($data, $request->id);
             if (!$pengguna) {
                 return $this->apiError(404, 'NOT UR DATAS');
             }
 
-            $dataBaruPengguna = $this->penggunaService->getSpesificPengguna($request->id);
-
-
-            return $this->apiSuccess($dataBaruPengguna, 200, 'successfully updated');
+            return $this->apiSuccess($pengguna, 200, 'successfully updated');
         } catch (Exception $e) {
             return $this->apiError(400, $e->getMessage());
         }
     }
 
-    public function destroy($id)
+    public function deletePengguna($id)
     {
         try {
             $pengguna = $this->penggunaService->deletePengguna($id);

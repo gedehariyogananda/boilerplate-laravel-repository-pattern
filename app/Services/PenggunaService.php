@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Helpers\FormatJsonPengguna;
 use App\Repositories\Interfaces\PenggunaRepositoryInterface;
 
 class PenggunaService
@@ -17,7 +18,7 @@ class PenggunaService
     {
         $data = $this->penggunaRepository->getAll();
         $mapData = $data->map(function ($item) {
-            return $this->formaterBodyJson($item);
+            return FormatJsonPengguna::formaterBodyJson($item);
         });
 
         return $mapData;
@@ -27,14 +28,16 @@ class PenggunaService
     {
         $pengguna = $this->penggunaRepository->find($id);
 
-        return $this->formaterBodyJson($pengguna);
+        return FormatJsonPengguna::formaterBodyJson($pengguna);
     }
 
     public function createPengguna($data)
     {
+        // hashing the request password from data 
+        $data['password'] = bcrypt($data['password']);
         $result = $this->penggunaRepository->store($data);
 
-        return $this->formaterBodyJson($result);
+        return FormatJsonPengguna::formaterBodyJson($result);
     }
 
     public function updatePengguna($data, $id)
@@ -43,7 +46,24 @@ class PenggunaService
             return false;
         }
 
-        return $this->penggunaRepository->update($data, $id);
+        $dataFound = $this->penggunaRepository->find($id);
+        if (!$dataFound) {
+            return false;
+        }
+
+        // hashing for updating data password
+        if (isset($data['password'])) {
+            $data['password'] = bcrypt($data['password']);
+        }
+
+        $forUpdating = $this->penggunaRepository->update($data, $id);
+        if (!$forUpdating) {
+            return false;
+        }
+
+        $dataBaruPengguna = $this->penggunaRepository->find($id);
+
+        return FormatJsonPengguna::formaterBodyJson($dataBaruPengguna);
     }
 
     public function deletePengguna($id)
@@ -52,20 +72,13 @@ class PenggunaService
             return false;
         }
 
+        $dataFound = $this->penggunaRepository->find($id);
+        if (!$dataFound) {
+            return false;
+        }
+
         $result = $this->penggunaRepository->delete($id);
 
         return $result;
-    }
-
-    // method for format 
-    public function formaterBodyJson($data)
-    {
-        return [
-            'id' => $data->id,
-            'nama' => $data->nama,
-            'email' => $data->email,
-            'photo_profile' => $data->photo_profile,
-            'divisi' => $data->division->nama_divisi,
-        ];
     }
 }

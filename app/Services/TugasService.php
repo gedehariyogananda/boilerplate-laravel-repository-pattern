@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Helpers\FormatJsonTugas;
 use App\Repositories\Interfaces\TugasRepositoryInterface;
 
 class TugasService
@@ -17,7 +18,7 @@ class TugasService
     {
         $data = $this->tugasRepository->getAll();
         $mapData = $data->map(function ($item) {
-            return $this->formaterBodyJson($item);
+            return FormatJsonTugas::formaterBodyJson($item);
         });
 
         return $mapData;
@@ -27,38 +28,44 @@ class TugasService
     {
         $tugas = $this->tugasRepository->find($id);
 
-        return $this->formaterBodyJson($tugas);
+        return FormatJsonTugas::formaterBodyJson($tugas);
     }
 
     public function createTugas($data)
     {
         $result = $this->tugasRepository->store($data);
 
-        return $this->formaterBodyJson($result);
+        return FormatJsonTugas::formaterBodyJson($result);
     }
 
     public function updateTugas($data, $id)
     {
-        return $this->tugasRepository->update($data, $id);
+        $dataFound = $this->tugasRepository->find($id);
+        if (!$dataFound) {
+            return false;
+        }
+
+
+        $isUpdated = $this->tugasRepository->update($data, $id);
+        if (!$isUpdated) {
+            return false;
+        }
+
+        $result = $this->tugasRepository->find($id);
+
+        return FormatJsonTugas::formaterBodyJson($result);
     }
 
 
     public function deleteTugas($id)
     {
+        $dataFound = $this->tugasRepository->find($id);
+        if (!$dataFound) {
+            return false;
+        }
+
         $result = $this->tugasRepository->delete($id);
 
         return $result;
-    }
-
-    // method for format response
-    private function formaterBodyJson($data)
-    {
-        return [
-            'id' => $data->id,
-            'nama_tugas' => $data->nama_tugas,
-            'penanggung_jawab' => $data->user->nama,
-            'proyek' => $data->proyek->nama_proyek,
-            'deskripsi_tugas' => $data->deskripsi_tugas,
-        ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Helpers\FormatJsonProyek;
 use App\Repositories\Interfaces\ProyekRepositoryInterface;
 
 class ProyekService
@@ -17,7 +18,7 @@ class ProyekService
     {
         $data = $this->proyekRepository->getAll();
         $mapData = $data->map(function ($item) {
-            return $this->formaterBodyJson($item);
+            return FormatJsonProyek::formaterBodyJson($item);
         });
 
         return $mapData;
@@ -27,7 +28,7 @@ class ProyekService
     {
         $proyek = $this->proyekRepository->find($id);
 
-        return $this->formaterBodyJson($proyek);
+        return FormatJsonProyek::formaterBodyJson($proyek);
     }
 
 
@@ -35,38 +36,36 @@ class ProyekService
     {
         $result = $this->proyekRepository->store($data);
 
-        return $this->formaterBodyJson($result);
+        return FormatJsonProyek::formaterBodyJson($result);
     }
 
     public function updateProyek($data, $id)
     {
-        return $this->proyekRepository->update($data, $id);
+        $dataFound = $this->proyekRepository->find($id);
+        if (!$dataFound) {
+            return false;
+        }
+
+        $isUpdated = $this->proyekRepository->update($data, $id);
+        if (!$isUpdated) {
+            return false;
+        }
+
+        $result = $this->proyekRepository->find($id);
+
+        return FormatJsonProyek::formaterBodyJson($result);
     }
 
 
     public function deleteProyek($id)
     {
+        $dataFound = $this->proyekRepository->find($id);
+        if (!$dataFound) {
+            return false;
+        }
+
         $result = $this->proyekRepository->delete($id);
 
         return $result;
-    }
-
-    // method for format response
-    private function formaterBodyJson($data)
-    {
-        return [
-            'id' => $data->id,
-            'nama_proyek' => $data->nama_proyek,
-            'biaya_proyek' => $this->formatRupiah($data->biaya_proyek),
-            'tanggal_mulai' => $data->tanggal_mulai,
-            'tanggal_selesai' => $data->tanggal_selesai,
-            'category' => $data->categoryProyek->nama_category,
-            'status_proyek' => $data->status_proyek,
-        ];
-    }
-
-    private function formatRupiah($amount)
-    {
-        return 'Rp ' . number_format($amount, 0, ',', '.');
     }
 }

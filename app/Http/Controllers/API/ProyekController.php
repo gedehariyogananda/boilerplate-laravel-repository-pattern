@@ -18,14 +18,14 @@ class ProyekController extends Controller
         $this->proyekService = $proyekService;
     }
 
-    public function index()
+    public function getProyek()
     {
         $data = $this->proyekService->getProyek();
 
         return $this->apiSuccess($data, 200, 'Data retrieved successfully');
     }
 
-    public function show($id)
+    public function getSpesificProyek($id)
     {
         $proyek = $this->proyekService->getSpesificProyek($id);
 
@@ -33,7 +33,7 @@ class ProyekController extends Controller
     }
 
 
-    public function store(ProyekRequest $request)
+    public function createProyek(ProyekRequest $request)
     {
         $data = $request->validated();
         $result = $this->proyekService->createProyek($data);
@@ -41,7 +41,7 @@ class ProyekController extends Controller
         return $this->apiSuccess($result, 201, 'Data created successfully');
     }
 
-    public function update(ProyekRequest $request, $id)
+    public function updateProyek(ProyekRequest $request, $id)
     {
         $data = $request->validated();
         $result = $this->proyekService->updateProyek($data, $id);
@@ -50,12 +50,10 @@ class ProyekController extends Controller
             return $this->apiError(404, 'Proyek not found');
         }
 
-        $ifSuceess = $this->proyekService->getSpesificProyek($id);
-
-        return $this->apiSuccess($ifSuceess, 200, 'Data updated successfully');
+        return $this->apiSuccess($result, 200, 'Data updated successfully');
     }
 
-    public function destroy($id)
+    public function deleteProyek($id)
     {
         $result = $this->proyekService->deleteProyek($id);
         if (!$result) {
